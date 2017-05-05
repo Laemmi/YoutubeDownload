@@ -1,0 +1,26 @@
+{
+  "name": "laemmi/YoutubeDownload",
+  "type": "application",
+  "description": "Download videos to local destination",
+  "keywords": ["youtube"],
+  "homepage": "https://github.com/Laemmi/YoutubeDownload",
+  "license": "MIT",
+  "authors": [
+      {
+      "name": "Michael Lämmlein",
+      "email": "laemmi@spacerabbit.de",
+      "homepage": "http://www.spacerabbit.de",
+      "role": "Developer"
+      }
+  ],
+
+  "require": {
+    "php" : "^5.6|^7.0|^7.1"
+  },
+
+  "autoload" : {
+    "psr-0" : {
+      "Laemmi_YoutubeDownload_" : "src/"
+    }
+  }
+}

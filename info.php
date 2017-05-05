@@ -1,5 +1,5 @@
 <?php
-require 'App/Bootstrap.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 $obj = new Laemmi_YoutubeDownload_YoutubeDownload(Laemmi_YoutubeDownload_Http_Client::factory('Curl'));
 $error = false;

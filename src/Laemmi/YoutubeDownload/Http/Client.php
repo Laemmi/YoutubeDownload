@@ -48,8 +48,6 @@ class Laemmi_YoutubeDownload_Http_Client
 {
     public static function factory($name)
     {
-        require_once 'Laemmi/YoutubeDownload/Http/Client/Adapter/'.$name.'.php';
-
         $class = 'Laemmi_YoutubeDownload_Http_Client_Adapter_'.$name;
 
         return new $class();
