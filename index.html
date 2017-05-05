@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
     <style>
         #content {
-            width: 500px;
+            width: 70%;
         }
     </style>
 </head>
@@ -23,17 +23,17 @@
 
 <div class="container" id="content">
     <div id="ContainerBuild">
-        <p>Nur die ID am Ende der URL eingeben!</p>
+        <p>Video Url eingeben!</p>
 
         <p>
             Beispiel:<br>
-            <code>https://www.youtube.com/watch?v=<span class="text-success">3vq9p00T08I</span></code>
+            <code>https://www.youtube.com/watch?v=Rd7YsqomnGI</code>
         </p>
 
         <form id="FormBuild" action="info.php" method="post">
             <div class="input-group input-group-lg">
                 <span class="input-group-addon"><span class="glyphicon glyphicon-cloud-download"></span></span>
-                <input type="text" name="id" class="form-control" placeholder="Youtube-ID">
+                <input type="text" name="url" class="form-control" placeholder="Video URL">
                 <span class="input-group-btn">
                     <button class="btn btn-default" type="submit" name="submit">Los gehts!</button>
                 </span>

@@ -1,19 +1,19 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 
-$obj = new Laemmi\YoutubeDownload\YoutubeDownload(Laemmi\YoutubeDownload\Http\Client::factory());
+$session = new Laemmi\YoutubeDownload\Session();
+
+$url = isset($_POST['url'])?$_POST['url']:null;
+
 $error = false;
-
-$id = isset($_POST['id'])?$_POST['id']:null;
-
 try {
-    $session = new Laemmi\YoutubeDownload\Session();
-    $session->data = $obj->info($id);
+    $service = Laemmi\YoutubeDownload\Service::factory($url);
+    $session->data = $service->getData();
 } catch (Exception $e) {
     $error = true;
 }
 ?>
-<a href="#" class="btn btn-primary button_new">Andere Video ID eingeben</a>
+<a href="#" class="btn btn-primary button_new">Andere Video URL eingeben</a>
 <?php if($error): ?>
     <div class="alert alert-danger" style="margin-top: 20px" role="alert">Ups... Du hast eine ungültige Youtube ID eingegeben </div>
 <?php else: ?>
