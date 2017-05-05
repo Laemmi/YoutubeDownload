@@ -32,11 +32,6 @@
  */
 
 /**
- *  @see Laemmi_YoutubeDownload_Http_Client_Interface
- */
-require 'Laemmi/YoutubeDownload/Http/Client/Interface.php';
-
-/**
  * Class Laemmi_YoutubeDownload_Http_Client_Adapter_Curl
  *
  * @category    Laemmi
