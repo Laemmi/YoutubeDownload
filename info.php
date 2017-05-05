@@ -1,15 +1,15 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 
-$obj = new Laemmi_YoutubeDownload_YoutubeDownload(Laemmi_YoutubeDownload_Http_Client::factory('Curl'));
+$obj = new Laemmi\YoutubeDownload\YoutubeDownload(Laemmi\YoutubeDownload\Http\Client::factory());
 $error = false;
 
 $id = isset($_POST['id'])?$_POST['id']:null;
 
 try {
-    $session = new Laemmi_YoutubeDownload_Session();
+    $session = new Laemmi\YoutubeDownload\Session();
     $session->data = $obj->info($id);
-} catch (Laemmi_YoutubeDownloadException $e) {
+} catch (Exception $e) {
     $error = true;
 }
 ?>

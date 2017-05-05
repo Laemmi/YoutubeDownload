@@ -21,7 +21,7 @@
  * THE SOFTWARE.
  *
  * @category    Laemmi
- * @package     Laemmi_YoutubeDownload
+ * @package     Laemmi\YoutubeDownload
  * @subpackage  Http_Client
  * @author      Michael Lämmlein <ml@spacerabbit.de>
  * @copyright   2014 Michael Lämmlein <ml@spacerabbit.de>
@@ -31,12 +31,14 @@
  * @since       20.11.2014
  */
 
+namespace Laemmi\YoutubeDownload\Http\Client;
+
 /**
- * Interface Laemmi_YoutubeDownload_Http_Client_Interface
+ * Interface
  *
  * @category    Laemmi
- * @package     Laemmi_YoutubeDownload
- * @subpackage  Http_Client
+ * @package     Laemmi\YoutubeDownload
+ * @subpackage  Http
  * @author      Michael Lämmlein <ml@spacerabbit.de>
  * @copyright   2014 Michael Lämmlein <ml@spacerabbit.de>
  * @license     http://www.opensource.org/licenses/mit-license.php MIT-License
@@ -44,7 +46,7 @@
  * @link        https://github.com/Laemmi/YoutubeDownload
  * @since       20.11.2014
  */
-interface Laemmi_YoutubeDownload_Http_Client_Interface
+interface ClientInterface
 {
     public function saveFile($url, $local);
 

@@ -21,7 +21,7 @@
  * THE SOFTWARE.
  *
  * @category    Laemmi
- * @package     Laemmi_YoutubeDownload
+ * @package     Laemmi\YoutubeDownload
  * @subpackage  YoutubeDownload
  * @author      Michael Lämmlein <ml@spacerabbit.de>
  * @copyright   2014 Michael Lämmlein <ml@spacerabbit.de>
@@ -31,16 +31,15 @@
  * @since       20.11.2014
  */
 
-/**
- * Class Laemmi_YoutubeDownloadException
- */
-class Laemmi_YoutubeDownloadException extends Exception {}
+namespace Laemmi\YoutubeDownload;
+
+use Laemmi\YoutubeDownload\Http\Client\ClientInterface;
 
 /**
- * Class Laemmi_YoutubeDownload
+ * Class YoutubeDownload
  *
  * @category    Laemmi
- * @package     Laemmi_YoutubeDownload
+ * @package     Laemmi\YoutubeDownload
  * @subpackage  YoutubeDownload
  * @author      Michael Lämmlein <ml@spacerabbit.de>
  * @copyright   2014 Michael Lämmlein <ml@spacerabbit.de>
@@ -49,14 +48,14 @@ class Laemmi_YoutubeDownloadException extends Exception {}
  * @link        https://github.com/Laemmi/YoutubeDownload
  * @since       20.11.2014
  */
-class Laemmi_YoutubeDownload_YoutubeDownload
+class YoutubeDownload
 {
-    const YT_URL_INFO           = 'http://www.youtube.com/get_video_info?video_id=';  // &el=embedded&ps=default&eurl=&gl=US&hl=en
-    const YT_URL_IMG_PREVIEW    = 'http://img.youtube.com/vi/'; // http://i1.ytimg.com/vi/
+    const YT_URL_INFO           = 'https://www.youtube.com/get_video_info?video_id=';  // &el=embedded&ps=default&eurl=&gl=US&hl=en
+    const YT_URL_IMG_PREVIEW    = 'https://img.youtube.com/vi/'; // http://i1.ytimg.com/vi/
 
-    protected $HttpClient = null;
+    private $HttpClient = null;
 
-    public function __construct(Laemmi_YoutubeDownload_Http_Client_Interface $HttpClient)
+    public function __construct(ClientInterface $HttpClient)
     {
         $this->HttpClient = $HttpClient;
     }
@@ -64,7 +63,7 @@ class Laemmi_YoutubeDownload_YoutubeDownload
     public function info($id)
     {
         if(!$id) {
-            throw new Laemmi_YoutubeDownloadException('Missing youtube id');
+            throw new Exception('Missing youtube id');
         }
 
         $info = $this->getVideoInfo($id);
@@ -110,17 +109,17 @@ class Laemmi_YoutubeDownload_YoutubeDownload
      * Get video info
      *
      * @param $id
-     * @throws YoutubeDownloadException
+     * @throws Exception
      * @return array
      */
-    protected function getVideoInfo($id)
+    private function getVideoInfo($id)
     {
         $data = array('meta' => array(), 'stream' => array());
 
         parse_str($this->HttpClient->getContent(self::YT_URL_INFO.$id), $info);
 
         if(isset($info['status']) && 'fail' === $info['status']) {
-            throw new Laemmi_YoutubeDownloadException($info['reason'], 1000);
+            throw new Exception($info['reason'], 1000);
         }
 
         $data['meta']['title'] = $info['title'];
@@ -141,7 +140,7 @@ class Laemmi_YoutubeDownload_YoutubeDownload
      * @param $value
      * @return mixed
      */
-    protected function getVideotype($value)
+    private function getVideotype($value)
     {
         $type = array(
             'video/webm' => array(
@@ -259,7 +258,7 @@ class Laemmi_YoutubeDownload_YoutubeDownload
      * @param int $precision
      * @return string
      */
-    protected function formatBytes($bytes, $precision = 2)
+    private function formatBytes($bytes, $precision = 2)
     {
         $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
         $bytes = max($bytes, 0);
