@@ -21,7 +21,7 @@
  * THE SOFTWARE.
  *
  * @category    Laemmi
- * @package     Laemmi_YoutubeDownload
+ * @package     Laemmi\YoutubeDownload
  * @subpackage  Http
  * @author      Michael Lämmlein <ml@spacerabbit.de>
  * @copyright   2014 Michael Lämmlein <ml@spacerabbit.de>
@@ -30,12 +30,14 @@
  * @link        https://github.com/Laemmi/YoutubeDownload
  * @since       20.11.2014
  */
+
+namespace Laemmi\YoutubeDownload\Http;
 
 /**
- * Class Laemmi_Session
+ * Class Client
  *
  * @category    Laemmi
- * @package     Laemmi_YoutubeDownload
+ * @package     Laemmi\YoutubeDownload
  * @subpackage  Http
  * @author      Michael Lämmlein <ml@spacerabbit.de>
  * @copyright   2014 Michael Lämmlein <ml@spacerabbit.de>
@@ -44,12 +46,10 @@
  * @link        https://github.com/Laemmi/YoutubeDownload
  * @since       20.11.2014
  */
-class Laemmi_YoutubeDownload_Http_Client
+class Client
 {
-    public static function factory($name)
+    public static function factory()
     {
-        $class = 'Laemmi_YoutubeDownload_Http_Client_Adapter_'.$name;
-
-        return new $class();
+        return new Client\Adapter\Curl();
     }
 }

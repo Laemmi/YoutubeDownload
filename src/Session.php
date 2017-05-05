@@ -21,8 +21,8 @@
  * THE SOFTWARE.
  *
  * @category    Laemmi
- * @package     Laemmi_YoutubeDownload
- * @subpackage  Http_Client_Adapter
+ * @package     Laemmi\YoutubeDownload
+ * @subpackage  Session
  * @author      Michael Lämmlein <ml@spacerabbit.de>
  * @copyright   2014 Michael Lämmlein <ml@spacerabbit.de>
  * @license     http://www.opensource.org/licenses/mit-license.php MIT-License
@@ -30,13 +30,15 @@
  * @link        https://github.com/Laemmi/YoutubeDownload
  * @since       20.11.2014
  */
+
+namespace Laemmi\YoutubeDownload;
 
 /**
- * Class Laemmi_YoutubeDownload_Http_Client_Adapter_Curl
+ * Class Session
  *
  * @category    Laemmi
- * @package     Laemmi_YoutubeDownload
- * @subpackage  Http_Client_Adapter
+ * @package     Laemmi\YoutubeDownload
+ * @subpackage  Session
  * @author      Michael Lämmlein <ml@spacerabbit.de>
  * @copyright   2014 Michael Lämmlein <ml@spacerabbit.de>
  * @license     http://www.opensource.org/licenses/mit-license.php MIT-License
@@ -44,51 +46,29 @@
  * @link        https://github.com/Laemmi/YoutubeDownload
  * @since       20.11.2014
  */
-class Laemmi_YoutubeDownload_Http_Client_Adapter_Curl implements Laemmi_YoutubeDownload_Http_Client_Interface
+class Session
 {
-    public function saveFile($url, $local)
+    public function __construct()
     {
-        $fp = fopen($local, 'w');
-        $ch = $this->curInit($url);
-        curl_setopt($ch, CURLOPT_FILE, $fp);
-        curl_exec($ch);
-        curl_close($ch);
-        fclose($fp);
+        session_start();
     }
 
-    public function getContent($url)
+    public function __set($name, $value)
     {
-        $ch = $this->curInit($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $contents = curl_exec($ch);
-        curl_close($ch);
-
-        return $contents;
+        $_SESSION['Laemmi'][$name] = $value;
     }
 
-    public function getHeaderContentLength($url)
+    public function __get($name)
     {
-        $ch = $this->curInit($url);
-        curl_setopt($ch, CURLOPT_HEADER,         true);
-        curl_setopt($ch, CURLOPT_NOBODY,         true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        $r = curl_exec($ch);
-
-        if(preg_match_all("/Content\-Length\:(.*)?\n/", $r, $match)) {
-            return trim(array_pop($match[1]));
+        if(isset($_SESSION['Laemmi'][$name])) {
+            return $_SESSION['Laemmi'][$name];
         }
 
-        return '';
+        return null;
     }
 
-    protected function curInit($url)
+    public function __unset($name)
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:11.0) Gecko Firefox/11.0");
-        curl_setopt($ch, CURLOPT_REFERER, "http://www.youtube.com/");
-
-        return $ch;
+        unset($_SESSION['Laemmi'][$name]);
     }
 }

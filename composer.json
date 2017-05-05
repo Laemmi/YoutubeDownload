@@ -19,8 +19,8 @@
   },
 
   "autoload" : {
-    "psr-0" : {
-      "Laemmi_YoutubeDownload_" : "src/"
+    "psr-4" : {
+      "Laemmi\\YoutubeDownload\\" : "src/"
     }
   }
 }

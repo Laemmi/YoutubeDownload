@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 
-$session = new Laemmi_YoutubeDownload_Session();
+$session = new Laemmi\YoutubeDownload\Session();
 
 if(!isset($session->data['meta']['img_preview'])) {
     exit('off');
