@@ -48,16 +48,24 @@ class Youtube implements ServiceInterface
 
     public function setId($value)
     {
-        $this->id = $value;
+        $urldata = parse_url($value);
+
+        if(! isset($urldata['query'])) {
+            throw new Exception('no query foud');
+        }
+
+        parse_str($urldata['query'], $query);
+
+        if(! isset($query['v'])) {
+            throw new Exception('no query param v found');
+        }
+
+        $this->id = $query['v'];
     }
 
     public function getData()
     {
         $id = $this->id;
-
-        if(!$id) {
-            throw new Exception('Missing youtube id');
-        }
 
         $info = $this->getVideoInfo($id);
 
