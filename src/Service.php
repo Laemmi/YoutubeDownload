@@ -51,30 +51,28 @@ use Laemmi\YoutubeDownload\Service\Youtube;
  */
 class Service
 {
+    /**
+     * Get instance of ServiceInterface
+     *
+     * @param $value
+     *
+     * @return ServiceInterface
+     * @throws Exception
+     */
     public static function factory($value)
     {
         $urldata = parse_url($value);
 
         $host = isset($urldata['host']) ? $urldata['host'] : '';
 
-        if(preg_match('/youtube/', $host)) {
-
-            if(! isset($urldata['query'])) {
-                throw new Exception('no query foud');
-            }
-
-            parse_str($urldata['query'], $query);
-
-            if(! isset($query['v'])) {
-                throw new Exception('no query param v found');
-            }
-
-            $service = new Youtube(Client::factory());
-            $service->setId($query['v']);
-
-            return $service;
+        switch ($host) {
+            case 'www.youtube.com':
+            case 'youtube.com':
+                $service = new Youtube(Client::factory());
+                $service->setId($value);
+                return $service;
         }
 
-        throw new Exception('no service found');
+        throw new Exception('Service not found');
     }
 }
