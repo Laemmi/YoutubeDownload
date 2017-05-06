@@ -1,9 +1,9 @@
 {
-  "name": "laemmi/YoutubeDownload",
+  "name": "laemmi/youtube-download",
   "type": "application",
   "description": "Download videos to local destination",
   "keywords": ["youtube"],
-  "homepage": "https://github.com/Laemmi/YoutubeDownload",
+  "homepage": "https://github.com/laemmi/youtube-download",
   "license": "MIT",
   "authors": [
       {
