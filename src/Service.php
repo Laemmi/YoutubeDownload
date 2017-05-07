@@ -34,6 +34,7 @@
 namespace Laemmi\YoutubeDownload;
 
 use Laemmi\YoutubeDownload\Http\Client;
+use Laemmi\YoutubeDownload\Service\Vimeo;
 use Laemmi\YoutubeDownload\Service\Youtube;
 
 /**
@@ -69,6 +70,11 @@ class Service
             case 'www.youtube.com':
             case 'youtube.com':
                 $service = new Youtube(Client::factory());
+                $service->setId($value);
+                return $service;
+            case 'www.vimeo.com':
+            case 'vimeo.com':
+                $service = new Vimeo(Client::factory());
                 $service->setId($value);
                 return $service;
         }
