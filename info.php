@@ -19,17 +19,18 @@ try {
 <?php else: ?>
     <div class="media">
         <div class="media-left">
-            <img src="preview.php?id=<?php echo $id; ?>" alt="<?php echo $session->data['meta']['title']; ?>">
+            <img src="preview.php?id=<?php echo $id; ?>" alt="<?php echo $session->data->getTitle(); ?>">
         </div>
         <div class="media-body">
-            <h4 class="media-heading"><?php echo $session->data['meta']['title']; ?></h4>
+            <h4 class="media-heading"><?php echo $session->data->getTitle(); ?></h4>
         </div>
     </div>
     <h5>Wähle bitte Dein bevorzugtes Format</h5>
     <div class="list-group">
         <?php
-        foreach($session->data['stream'] as $key => $val) {
-            echo '<a href="download.php?k='.$key.'" class="list-group-item">'.$val['typename'].'  '.$val['quality'].' ('.$val['size_format'].')</a>';
+        foreach($session->data as $key => $stream) {
+            $filter = new Laemmi\YoutubeDownload\Filter\FormatBytes();
+            echo '<a href="download.php?k='.$key.'" class="list-group-item">'.$stream->getFormat().'  '.$stream->getQuality().' (' . $filter($stream->getSize()) . ')</a>';
         }
         ?>
     </div>
