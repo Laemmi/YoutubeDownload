@@ -28,6 +28,7 @@
 
 namespace Laemmi\YoutubeDownload\Service;
 
+use Laemmi\YoutubeDownload\Data;
 use Laemmi\YoutubeDownload\ServiceInterface;
 use Laemmi\YoutubeDownload\Exception;
 use Laemmi\YoutubeDownload\Http\Client\ClientInterface;
@@ -46,6 +47,12 @@ class Youtube implements ServiceInterface
         $this->HttpClient = $HttpClient;
     }
 
+    /**
+     * Set id / url
+     *
+     * @param $value
+     * @throws Exception
+     */
     public function setId($value)
     {
         $urldata = parse_url($value);
@@ -63,18 +70,23 @@ class Youtube implements ServiceInterface
         $this->id = $query['v'];
     }
 
+    /**
+     * Get data
+     *
+     * @return Data
+     */
     public function getData()
     {
         $id = $this->id;
 
         $info = $this->getVideoInfo($id);
 
-        $data = array();
-        $data['meta'] = array(
-            'title'        => $info['meta']['title'],
-            'img_preview'  => self::YT_URL_IMG_PREVIEW.$id.'/default.jpg',
-        );
-        $data['stream'] = array();
+        $data = new Data();
+        $data->setTitle($info['meta']['title']);
+        $data->setPreviewUrl(self::YT_URL_IMG_PREVIEW.$id.'/default.jpg');
+
+        $sort = [];
+
         foreach($info['stream'] as $key => $val)
         {
             $x = explode(';', $val['type']);
@@ -82,26 +94,39 @@ class Youtube implements ServiceInterface
             $videotype      = $this->getVideotype($val);
             $size           = $this->HttpClient->getHeaderContentLength($val['url']);
 
-            $data['stream'][] = array(
-                'url'          => $val['url'],
-                'content_type' => $content_type,
-                'size'         => $size,
-                'size_format'  => $this->formatBytes($size),
-                'fileextension'=> $videotype['type']['extension'],
-                'filename'     => $info['meta']['title'].$videotype['type']['extension'],
-                'typename'     => $videotype['type']['name'],
-                'typesort'     => $videotype['sort'],
+            $stream = new Data\Stream();
+            $stream->setUrl($val['url']);
+            $stream->setContentType($content_type);
+            $stream->setSize($size);
+            $stream->getFileExtension($videotype['type']['extension']);
+            $stream->setFilename($info['meta']['title'].$videotype['type']['extension']);
+            $stream->setFormat($videotype['type']['name']);
+            $stream->setQuality($videotype['quality']);
 
-                'url_download' => $val['url'].'&title='.$info['meta']['title'],
-                'quality'      => $videotype['quality'],
-            );
+            $data->append($stream);
+
+            $sort[] = $videotype['sort'];
+
+//            $data['stream'][] = array(
+//                'url'          => $val['url'],
+//                'content_type' => $content_type,
+//                'size'         => $size,
+//                'size_format'  => $this->formatBytes($size),
+//                'fileextension'=> $videotype['type']['extension'],
+//                'filename'     => $info['meta']['title'].$videotype['type']['extension'],
+//                'typename'     => $videotype['type']['name'],
+//                'typesort'     => $videotype['sort'],
+//
+//                'url_download' => $val['url'].'&title='.$info['meta']['title'],
+//                'quality'      => $videotype['quality'],
+//            );
         }
 
-        foreach ($data['stream'] as $key => $row)
-        {
-            $typesort[$key] = $row['typesort'];
-        }
-        array_multisort($typesort, SORT_ASC, $data['stream']);
+//        foreach ($data['stream'] as $key => $row)
+//        {
+//            $typesort[$key] = $row['typesort'];
+//        }
+//        array_multisort($typesort, SORT_ASC, $data['stream']);
 
         return $data;
     }
@@ -250,22 +275,5 @@ class Youtube implements ServiceInterface
             'quality'   => $value['quality'].' '.$value['itag'],
             'sort'      => 99
         );
-    }
-
-    /**
-     * Format bytes
-     *
-     * @param $bytes
-     * @param int $precision
-     * @return string
-     */
-    private function formatBytes($bytes, $precision = 2)
-    {
-        $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
-        $bytes = max($bytes, 0);
-        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-        $pow = min($pow, count($units) - 1);
-        $bytes /= pow(1024, $pow);
-        return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }
