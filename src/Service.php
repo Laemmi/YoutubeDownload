@@ -64,17 +64,21 @@ class Service
     {
         $urldata = parse_url($value);
 
-        $host = isset($urldata['host']) ? $urldata['host'] : '';
+        $host    = isset($urldata['host']) ? $urldata['host'] : '';
+        $scheme  = isset($urldata['scheme']) ? $urldata['scheme'] : 'http';
+
+        $options = new Client\Options();
+        $options->referer = $scheme . '://' . $host;
 
         switch ($host) {
             case 'www.youtube.com':
             case 'youtube.com':
-                $service = new Youtube(Client::factory());
+                $service = new Youtube(Client::factory($options));
                 $service->setId($value);
                 return $service;
             case 'www.vimeo.com':
             case 'vimeo.com':
-                $service = new Vimeo(Client::factory());
+                $service = new Vimeo(Client::factory($options));
                 $service->setId($value);
                 return $service;
         }

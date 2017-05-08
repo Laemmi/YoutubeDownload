@@ -33,6 +33,8 @@
 
 namespace Laemmi\YoutubeDownload\Http;
 
+use Laemmi\YoutubeDownload\Http\Client\Options;
+
 /**
  * Class Client
  *
@@ -48,8 +50,8 @@ namespace Laemmi\YoutubeDownload\Http;
  */
 class Client
 {
-    public static function factory()
+    public static function factory(Options $options)
     {
-        return new Client\Adapter\Curl();
+        return new Client\Adapter\Curl($options);
     }
 }

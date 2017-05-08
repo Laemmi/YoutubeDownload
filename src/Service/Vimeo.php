@@ -28,12 +28,14 @@
 
 namespace Laemmi\YoutubeDownload\Service;
 
+use Laemmi\YoutubeDownload\Data;
 use Laemmi\YoutubeDownload\ServiceInterface;
 use Laemmi\YoutubeDownload\Exception;
 use Laemmi\YoutubeDownload\Http\Client\ClientInterface;
 
 class Vimeo implements ServiceInterface
 {
+    const URL_INFO = 'https://player.vimeo.com/video/%s';
 
     private $HttpClient = null;
 
@@ -48,55 +50,68 @@ class Vimeo implements ServiceInterface
     {
         $urldata = parse_url($value);
 
+        if(! isset($urldata['path'])) {
+            throw new Exception('no id found');
+        }
 
-        $id = isset($urldata['path']) ? $urldata['path'] : '';
-
-        echo "<pre>";
-        print_r($urldata);
-        echo "</pre>";
-
-        $id = '39995350';
-
-        $base = 'https://player.vimeo.com/play_redirect';
-
-        $content = $this->HttpClient->getContent(sprintf('https://player.vimeo.com/video/%s', $id));
-
-//        preg_match('/g:(\{.*?\}),a/s', $content, $match);
-        preg_match('~var t=(\{.*?\};)~m', $content, $match);
-
-        $pattern = '/\{(?:[^{}]|(?R))*\}/x';
-        preg_match_all($pattern, $content, $match);
-
-        echo "<pre>";
-        print_r($match);
-        echo "</pre>";
-
-//        $json = json_decode($match[1]);
-//
-//        echo "<pre>";
-//        print_r($json);
-//        echo "</pre>";
+        $info = pathinfo($urldata['path']);
+        $this->id = $info['filename'];
     }
 
     public function getData()
     {
+        $content = $this->HttpClient->getContent(sprintf(self::URL_INFO, $this->id));
 
+        if(! preg_match('~var t=(\{.*?\});~m', $content, $match)) {
+            throw new Exception('no content found');
+        }
+
+        $info = json_decode($match[1], true);
+
+        $data = new Data();
+        $data->setTitle($info['video']['title']);
+        $data->setPreviewUrl($info['video']['thumbs']['640']);
+
+        foreach($info['request']['files']['progressive'] as $key => $val) {
+            $size = $this->HttpClient->getHeaderContentLength($val['url']);
+            $videotype = $this->getVideotype($val['mime']);
+
+            $stream = new Data\Stream();
+            $stream->setUrl($val['url']);
+            $stream->setContentType($val['mime']);
+            $stream->setSize($size);
+            $stream->getFileExtension($videotype['extension']);
+            $stream->setFilename($info['video']['title'].$videotype['extension']);
+            $stream->setFormat($videotype['name']);
+            $stream->setQuality($val['quality']);
+
+            $data->append($stream);
+        }
+
+        return $data;
     }
 
-    /**
-     * Format bytes
-     *
-     * @param $bytes
-     * @param int $precision
-     * @return string
-     */
-    private function formatBytes($bytes, $precision = 2)
+    private function getVideotype($value)
     {
-        $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
-        $bytes = max($bytes, 0);
-        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-        $pow = min($pow, count($units) - 1);
-        $bytes /= pow(1024, $pow);
-        return round($bytes, $precision) . ' ' . $units[$pow];
+        $type = array(
+            'video/webm' => array(
+                'extension' => '.webm',
+                'name' => 'WebM'
+            ),
+            'video/3gpp' => array(
+                'extension' => '.3gp',
+                'name' => '3GPP'
+            ),
+            'video/x-flv' => array(
+                'extension' => '.flv',
+                'name' => 'FLV'
+            ),
+            'video/mp4' => array(
+                'extension' => '.mp4',
+                'name' => 'MPEG4'
+            )
+        );
+
+        return isset($type[$value]) ? $type[$value] : [];
     }
 }

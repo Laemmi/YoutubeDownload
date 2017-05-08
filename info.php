@@ -15,7 +15,7 @@ try {
 ?>
 <a href="#" class="btn btn-primary button_new">Andere Video URL eingeben</a>
 <?php if($error): ?>
-    <div class="alert alert-danger" style="margin-top: 20px" role="alert">Ups... Du hast eine ungültige Youtube ID eingegeben </div>
+    <div class="alert alert-danger" style="margin-top: 20px" role="alert">Ups... Du hast eine ungültige Video Url eingegeben </div>
 <?php else: ?>
     <div class="media">
         <div class="media-left">
