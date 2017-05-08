@@ -34,6 +34,7 @@
 namespace Laemmi\YoutubeDownload\Http\Client\Adapter;
 
 use Laemmi\YoutubeDownload\Http\Client\ClientInterface;
+use Laemmi\YoutubeDownload\Http\Client\Options;
 
 /**
  * Class Curl
@@ -49,6 +50,13 @@ use Laemmi\YoutubeDownload\Http\Client\ClientInterface;
  */
 class Curl implements ClientInterface
 {
+    private $options = [];
+
+    public function __construct(Options $options)
+    {
+        $this->options = $options;
+    }
+
     public function saveFile($url, $local)
     {
         $fp = fopen($local, 'w');
@@ -90,7 +98,7 @@ class Curl implements ClientInterface
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:11.0) Gecko Firefox/11.0");
-        curl_setopt($ch, CURLOPT_REFERER, "https://www.youtube.com/");
+        curl_setopt($ch, CURLOPT_REFERER, $this->options->referer);
 
         return $ch;
     }

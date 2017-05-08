@@ -48,6 +48,8 @@ namespace Laemmi\YoutubeDownload\Http\Client;
  */
 interface ClientInterface
 {
+    public function __construct(Options $options);
+
     public function saveFile($url, $local);
 
     public function getContent($url);
