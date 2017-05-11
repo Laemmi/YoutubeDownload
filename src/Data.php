@@ -77,14 +77,14 @@ class Data extends \ArrayIterator
     ####################################################################################################################
 
     /**
-     * @param mixed $value
+     * @param Stream $value
      *
      * @throws Exception
      */
     public function append($value)
     {
-        if(! $value instanceof Stream) {
-            throw new Exception('invalid stream');
+        if (! $value instanceof Stream) {
+            throw new Exception('Invalid Stream');
         }
 
         parent::append($value);
