@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Laemmi/youtube-download.svg?branch=master)](https://travis-ci.org/Laemmi/youtube-download)
+
 # YoutubeDownload
 This is a app with full frontend and backand to load videos from youtube.com to local drive.
 
