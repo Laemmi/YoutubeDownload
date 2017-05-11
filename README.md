@@ -4,7 +4,7 @@ This is a app with full frontend and backand to load videos from youtube.com to 
 You can use it also als library for your own projects.
 
 # Requirements
-php 5.6
+php 5.5
 
 # Installation
 via composer
