@@ -29,9 +29,9 @@
 namespace Laemmi\YoutubeDownload;
 
 use Laemmi\YoutubeDownload\Data\Stream;
-use PHPUnit\Framework\TestCase;
+use PHPUnit_Framework_TestCase;
 
-class DataTest extends TestCase
+class DataTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Test if class has correctly instance
