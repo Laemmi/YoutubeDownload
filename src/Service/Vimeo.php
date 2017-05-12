@@ -80,7 +80,7 @@ class Vimeo implements ServiceInterface
             $stream->setUrl($val['url']);
             $stream->setContentType($val['mime']);
             $stream->setSize($size);
-            $stream->getFileExtension($videotype['extension']);
+            $stream->setFileExtension($videotype['extension']);
             $stream->setFilename($info['video']['title'].$videotype['extension']);
             $stream->setFormat($videotype['name']);
             $stream->setQuality($val['quality']);

@@ -98,7 +98,7 @@ class Youtube implements ServiceInterface
             $stream->setUrl($val['url']);
             $stream->setContentType($content_type);
             $stream->setSize($size);
-            $stream->getFileExtension($videotype['type']['extension']);
+            $stream->setFileExtension($videotype['type']['extension']);
             $stream->setFilename($info['meta']['title'].$videotype['type']['extension']);
             $stream->setFormat($videotype['type']['name']);
             $stream->setQuality($videotype['quality']);

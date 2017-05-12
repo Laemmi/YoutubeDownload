@@ -2,7 +2,7 @@
   "name": "laemmi/youtube-download",
   "type": "application",
   "description": "Download videos to local destination",
-  "keywords": ["youtube"],
+  "keywords": ["youtube", "vimeo"],
   "homepage": "https://github.com/laemmi/youtube-download",
   "license": "MIT",
   "authors": [

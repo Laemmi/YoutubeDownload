@@ -27,7 +27,7 @@
  * @copyright   2014 Michael Lämmlein <ml@spacerabbit.de>
  * @license     http://www.opensource.org/licenses/mit-license.php MIT-License
  * @version     0.0.1
- * @link        https://github.com/Laemmi/YoutubeDownload
+ * @link        https://github.com/laemmi/youtube-download
  * @since       20.11.2014
  */
 
@@ -45,7 +45,7 @@ use Laemmi\YoutubeDownload\Http\Client\Options;
  * @copyright   2014 Michael Lämmlein <ml@spacerabbit.de>
  * @license     http://www.opensource.org/licenses/mit-license.php MIT-License
  * @version     0.0.1
- * @link        https://github.com/Laemmi/YoutubeDownload
+ * @link        https://github.com/laemmi/youtube-download
  * @since       20.11.2014
  */
 class Curl implements ClientInterface
