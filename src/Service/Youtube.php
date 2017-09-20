@@ -30,8 +30,13 @@ namespace Laemmi\YoutubeDownload\Service;
 
 use Laemmi\YoutubeDownload\Data;
 use Laemmi\YoutubeDownload\ServiceInterface;
-use Laemmi\YoutubeDownload\Exception;
 use Laemmi\YoutubeDownload\Http\Client\ClientInterface;
+
+class Exception extends \Laemmi\YoutubeDownload\Exception {
+    const FAILED_STATUS_REASON = 1000;
+    const NO_QUERY_FOUND       = 2000;
+    const NO_QUERY_PARAM_FOUND = 3000;
+}
 
 class Youtube implements ServiceInterface
 {
@@ -58,13 +63,13 @@ class Youtube implements ServiceInterface
         $urldata = parse_url($value);
 
         if(! isset($urldata['query'])) {
-            throw new Exception('no query foud');
+            throw new Exception('no query found', Exception::NO_QUERY_FOUND);
         }
 
         parse_str($urldata['query'], $query);
 
         if(! isset($query['v'])) {
-            throw new Exception('no query param v found');
+            throw new Exception('no query param v found', Exception::NO_QUERY_PARAM_FOUND);
         }
 
         $this->id = $query['v'];
@@ -145,7 +150,7 @@ class Youtube implements ServiceInterface
         parse_str($this->HttpClient->getContent(self::YT_URL_INFO.$id), $info);
 
         if(isset($info['status']) && 'fail' === $info['status']) {
-            throw new Exception($info['reason'], 1000);
+            throw new Exception($info['reason'], Exception::FAILED_STATUS_REASON);
         }
 
         $data['meta']['title'] = $info['title'];

@@ -83,6 +83,6 @@ class Service
                 return $service;
         }
 
-        throw new Exception('Service not found');
+        throw new Exception('Service not found', Exception::SERVICE_NOT_FOUND);
     }
 }
