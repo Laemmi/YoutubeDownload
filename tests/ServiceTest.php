@@ -32,6 +32,7 @@ namespace Laemmi\YoutubeDownload;
 use PHPUnit_Framework_TestCase;
 use Laemmi\YoutubeDownload\Service\Youtube;
 use Laemmi\YoutubeDownload\Service\Vimeo;
+use Laemmi\YoutubeDownload\Exception;
 
 class ServiceTest extends PHPUnit_Framework_TestCase
 {
@@ -43,6 +44,16 @@ class ServiceTest extends PHPUnit_Framework_TestCase
     public function testFactoryReturnCorrectObject($value, $expected)
     {
         $this->assertInstanceOf($expected, Service::factory($value));
+    }
+
+    /**
+     * Text factory throw exception
+     */
+    public function testFactoryThrowException()
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionCode(100);
+        Service::factory('Foo');
     }
 
     /**
