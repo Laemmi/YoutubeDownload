@@ -28,8 +28,7 @@
 
 namespace Laemmi\YoutubeDownload;
 
-class Exception extends \Exception
+class ServiceException extends Exception
 {
-    const SERVICE_NOT_FOUND = 100;
-    const INVALID_STREAM    = 200;
+
 }

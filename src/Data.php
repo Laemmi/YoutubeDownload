@@ -84,7 +84,7 @@ class Data extends \ArrayIterator
     public function append($value)
     {
         if (! $value instanceof Stream) {
-            throw new Exception('Invalid Stream');
+            throw new Exception('Invalid Stream', Exception::INVALID_STREAM);
         }
 
         parent::append($value);

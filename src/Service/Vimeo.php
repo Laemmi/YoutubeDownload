@@ -30,7 +30,6 @@ namespace Laemmi\YoutubeDownload\Service;
 
 use Laemmi\YoutubeDownload\Data;
 use Laemmi\YoutubeDownload\ServiceInterface;
-use Laemmi\YoutubeDownload\Exception;
 use Laemmi\YoutubeDownload\Http\Client\ClientInterface;
 
 class Vimeo implements ServiceInterface
@@ -51,7 +50,7 @@ class Vimeo implements ServiceInterface
         $urldata = parse_url($value);
 
         if(! isset($urldata['path'])) {
-            throw new Exception('no id found');
+            throw new VimeoException('no id found', VimeoException::NO_ID_FOUND);
         }
 
         $info = pathinfo($urldata['path']);
@@ -63,7 +62,7 @@ class Vimeo implements ServiceInterface
         $content = $this->HttpClient->getContent(sprintf(self::URL_INFO, $this->id));
 
         if(! preg_match('~var t=(\{.*?\});~m', $content, $match)) {
-            throw new Exception('no content found');
+            throw new VimeoException('no content found', VimeoException::NO_CONTENT_FOUND);
         }
 
         $info = json_decode($match[1], true);

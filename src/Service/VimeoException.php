@@ -26,10 +26,12 @@
  * @since      21.09.17
  */
 
-namespace Laemmi\YoutubeDownload;
+namespace Laemmi\YoutubeDownload\Service;
 
-class Exception extends \Exception
+use Laemmi\YoutubeDownload\ServiceException;
+
+class VimeoException extends ServiceException
 {
-    const SERVICE_NOT_FOUND = 100;
-    const INVALID_STREAM    = 200;
+    const NO_ID_FOUND      = 1000;
+    const NO_CONTENT_FOUND = 2000;
 }
