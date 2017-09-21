@@ -32,12 +32,6 @@ use Laemmi\YoutubeDownload\Data;
 use Laemmi\YoutubeDownload\ServiceInterface;
 use Laemmi\YoutubeDownload\Http\Client\ClientInterface;
 
-class Exception extends \Laemmi\YoutubeDownload\Exception {
-    const FAILED_STATUS_REASON = 1000;
-    const NO_QUERY_FOUND       = 2000;
-    const NO_QUERY_PARAM_FOUND = 3000;
-}
-
 class Youtube implements ServiceInterface
 {
     const YT_URL_INFO           = 'https://www.youtube.com/get_video_info?video_id=';  // &el=embedded&ps=default&eurl=&gl=US&hl=en
@@ -56,20 +50,20 @@ class Youtube implements ServiceInterface
      * Set id / url
      *
      * @param $value
-     * @throws Exception
+     * @throws YoutubeException
      */
     public function setId($value)
     {
         $urldata = parse_url($value);
 
         if(! isset($urldata['query'])) {
-            throw new Exception('no query found', Exception::NO_QUERY_FOUND);
+            throw new YoutubeException('no query found', YoutubeException::NO_QUERY_FOUND);
         }
 
         parse_str($urldata['query'], $query);
 
         if(! isset($query['v'])) {
-            throw new Exception('no query param v found', Exception::NO_QUERY_PARAM_FOUND);
+            throw new YoutubeException('no query param v found', YoutubeException::NO_QUERY_PARAM_FOUND);
         }
 
         $this->id = $query['v'];
@@ -140,7 +134,7 @@ class Youtube implements ServiceInterface
      * Get video info
      *
      * @param $id
-     * @throws Exception
+     * @throws YoutubeException
      * @return array
      */
     private function getVideoInfo($id)
@@ -150,7 +144,7 @@ class Youtube implements ServiceInterface
         parse_str($this->HttpClient->getContent(self::YT_URL_INFO.$id), $info);
 
         if(isset($info['status']) && 'fail' === $info['status']) {
-            throw new Exception($info['reason'], Exception::FAILED_STATUS_REASON);
+            throw new YoutubeException($info['reason'], YoutubeException::FAILED_STATUS_REASON);
         }
 
         $data['meta']['title'] = $info['title'];

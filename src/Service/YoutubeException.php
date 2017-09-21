@@ -26,10 +26,13 @@
  * @since      21.09.17
  */
 
-namespace Laemmi\YoutubeDownload;
+namespace Laemmi\YoutubeDownload\Service;
 
-class Exception extends \Exception
+use Laemmi\YoutubeDownload\ServiceException;
+
+class YoutubeException extends ServiceException
 {
-    const SERVICE_NOT_FOUND = 100;
-    const INVALID_STREAM    = 200;
+    const FAILED_STATUS_REASON = 1000;
+    const NO_QUERY_FOUND       = 2000;
+    const NO_QUERY_PARAM_FOUND = 3000;
 }

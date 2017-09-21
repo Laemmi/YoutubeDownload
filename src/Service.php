@@ -58,7 +58,7 @@ class Service
      * @param $value
      *
      * @return ServiceInterface
-     * @throws Exception
+     * @throws ServiceException
      */
     public static function factory($value)
     {
