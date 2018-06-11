@@ -3,7 +3,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 $session = new Laemmi\YoutubeDownload\Session();
 
-$url = isset($_POST['url'])?$_POST['url']:null;
+$url = isset($_POST['url']) ? $_POST['url'] : null;
 
 $error = false;
 try {
@@ -19,7 +19,7 @@ try {
 <?php else: ?>
     <div class="media">
         <div class="media-left">
-            <img src="preview.php?id=<?php echo $id; ?>" alt="<?php echo $session->data->getTitle(); ?>">
+            <img src="preview.php" alt="<?php echo $session->data->getTitle(); ?>">
         </div>
         <div class="media-body">
             <h4 class="media-heading"><?php echo $session->data->getTitle(); ?></h4>

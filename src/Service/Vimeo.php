@@ -61,7 +61,7 @@ class Vimeo implements ServiceInterface
     {
         $content = $this->HttpClient->getContent(sprintf(self::URL_INFO, $this->id));
 
-        if(! preg_match('~var t=(\{.*?\});~m', $content, $match)) {
+        if (! preg_match('~var a=(\{.*?\});~m', $content, $match)) {
             throw new VimeoException('no content found', VimeoException::NO_CONTENT_FOUND);
         }
 
