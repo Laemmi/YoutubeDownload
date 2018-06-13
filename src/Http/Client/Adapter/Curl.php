@@ -60,46 +60,47 @@ class Curl implements ClientInterface
     public function saveFile($url, $local)
     {
         $fp = fopen($local, 'w');
-        $ch = $this->curInit($url);
-        curl_setopt($ch, CURLOPT_FILE, $fp);
-        curl_exec($ch);
-        curl_close($ch);
+        $response = $this->request($url, [
+            CURLOPT_FILE => $fp
+        ]);
         fclose($fp);
     }
 
     public function getContent($url)
     {
-        $ch = $this->curInit($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $contents = curl_exec($ch);
-        curl_close($ch);
-
-        return $contents;
+        return $this->request($url);
     }
 
     public function getHeaderContentLength($url)
     {
-        $ch = $this->curInit($url);
-        curl_setopt($ch, CURLOPT_HEADER,         true);
-        curl_setopt($ch, CURLOPT_NOBODY,         true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        $r = curl_exec($ch);
+        $response = $this->request($url, [
+            CURLOPT_HEADER         => true,
+            CURLOPT_NOBODY         => true,
+            CURLOPT_FOLLOWLOCATION => true,
+        ]);
 
-        if(preg_match_all("/Content\-Length\:(.*)?\n/", $r, $match)) {
+        if (preg_match_all("/Content\-Length\:(.*)?\n/", $response, $match)) {
             return trim(array_pop($match[1]));
         }
 
         return '';
     }
 
-    protected function curInit($url)
+    private function request($url, array $options = [])
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:11.0) Gecko Firefox/11.0");
-        curl_setopt($ch, CURLOPT_REFERER, $this->options->referer);
+        $defaults = [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:11.0) Gecko Firefox/11.0',
+            CURLOPT_REFERER        => $this->options->referer
+        ];
 
-        return $ch;
+        $options = $options + $defaults;
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, $options);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
     }
 }
