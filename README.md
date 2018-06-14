@@ -9,8 +9,12 @@ This is a app with full frontend and backand to load videos from youtube.com or 
 
 You can use it also als library for your own projects.
 
+Supported services
+- YouTube
+- Vimeo
+
 # Requirements
-php 5.5
+php 7.0
 
 # Installation
 via composer
