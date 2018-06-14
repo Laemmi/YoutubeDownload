@@ -57,7 +57,7 @@ class Curl implements ClientInterface
         $this->options = $options;
     }
 
-    public function saveFile($url, $local)
+    public function saveFile(string $url, $local)
     {
         $fp = fopen($local, 'w');
         $response = $this->request($url, [
@@ -66,12 +66,12 @@ class Curl implements ClientInterface
         fclose($fp);
     }
 
-    public function getContent($url)
+    public function getContent(string $url, array $options = [])
     {
-        return $this->request($url);
+        return $this->request($url, $options);
     }
 
-    public function getHeaderContentLength($url)
+    public function getHeaderContentLength(string $url) : string
     {
         $response = $this->request($url, [
             CURLOPT_HEADER         => true,
@@ -86,7 +86,7 @@ class Curl implements ClientInterface
         return '';
     }
 
-    private function request($url, array $options = [])
+    private function request(string $url, array $options = [])
     {
         $defaults = [
             CURLOPT_RETURNTRANSFER => true,
