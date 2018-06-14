@@ -34,7 +34,8 @@ use Laemmi\YoutubeDownload\Http\Client\ClientInterface;
 
 class Vimeo implements ServiceInterface
 {
-    const URL_INFO = 'https://player.vimeo.com/video/%s';
+    const URL_PLAYER = 'https://player.vimeo.com/video/%s';
+    const URL_VIDEO  = 'https://vimeo.com/%s';
 
     private $HttpClient = null;
 
@@ -57,40 +58,56 @@ class Vimeo implements ServiceInterface
         $this->id = $info['filename'];
     }
 
-    public function getData()
+    public function getData() : Data
     {
-        $content = $this->HttpClient->getContent(sprintf(self::URL_INFO, $this->id));
-
-        if (! preg_match('~var a=(\{.*?\});~m', $content, $match)) {
-            throw new VimeoException('no content found', VimeoException::NO_CONTENT_FOUND);
+        // Find video.clip_page_config to get config_url
+        $content = $this->HttpClient->getContent(sprintf(self::URL_VIDEO, $this->id));
+        if (preg_match('~vimeo\.clip_page_config = (\{.*?\});~m', $content, $match)) {
+            $info = json_decode($match[1], true);
+            $content = $this->HttpClient->getContent($info['player']['config_url']);
+            $info = json_decode($content, true);
+            return $this->addDateFromConfigUrl($info);
         }
 
-        $info = json_decode($match[1], true);
-
-        $data = new Data();
-        $data->setTitle($info['video']['title']);
-        $data->setPreviewUrl($info['video']['thumbs']['640']);
-
-        foreach($info['request']['files']['progressive'] as $key => $val) {
-            $size = $this->HttpClient->getHeaderContentLength($val['url']);
-            $videotype = $this->getVideotype($val['mime']);
-
-            $stream = new Data\Stream();
-            $stream->setUrl($val['url']);
-            $stream->setContentType($val['mime']);
-            $stream->setSize($size);
-            $stream->setFileExtension($videotype['extension']);
-            $stream->setFilename($info['video']['title'].$videotype['extension']);
-            $stream->setFormat($videotype['name']);
-            $stream->setQuality($val['quality']);
-
-            $data->append($stream);
+        // Alternative find config data on player page
+        $content = $this->HttpClient->getContent(sprintf(self::URL_PLAYER, $this->id));
+        if (preg_match('~var t=(\{.*?\});~m', $content, $match)) {
+            $info = json_decode($match[1], true);
+            return $this->addDateFromConfigUrl($info);
         }
 
-        return $data;
+        // Alternative load config if user allows download video
+        $content = $this->HttpClient->getContent(sprintf(self::URL_VIDEO . '?action=load_download_config', $this->id), [
+            CURLOPT_HTTPHEADER => [
+                'X-Requested-With: XMLHttpRequest'
+            ]
+        ]);
+        $info = json_decode($content, true);
+        if (isset($info['files'])) {
+            $data = new Data();
+            $data->setTitle('');
+            $data->setPreviewUrl('');
+
+            foreach($info['files'] as $key => $val) {
+                $size = $this->HttpClient->getHeaderContentLength($val['download_url']);
+                $stream = new Data\Stream();
+                $stream->setUrl($val['download_url']);
+                $stream->setContentType($val['extension']);
+                $stream->setSize($size);
+                $stream->setFileExtension($val['extension']);
+                $stream->setFilename($val['download_name']);
+                $stream->setFormat($val['public_name']);
+                $stream->setQuality($val['public_name']);
+
+                $data->append($stream);
+            }
+            return $data;
+        }
+
+        throw new VimeoException('no content found', VimeoException::NO_CONTENT_FOUND);
     }
 
-    private function getVideotype($value)
+    private function getVideotype($value) : array
     {
         $type = array(
             'video/webm' => array(
@@ -112,5 +129,28 @@ class Vimeo implements ServiceInterface
         );
 
         return isset($type[$value]) ? $type[$value] : [];
+    }
+
+    private function addDateFromConfigUrl(array $info) : Data
+    {
+        $data = new Data();
+        $data->setTitle($info['video']['title']);
+        $data->setPreviewUrl($info['video']['thumbs']['640']);
+        foreach($info['request']['files']['progressive'] as $key => $val) {
+            $size = $this->HttpClient->getHeaderContentLength($val['url']);
+            $videotype = $this->getVideotype($val['mime']);
+
+            $stream = new Data\Stream();
+            $stream->setUrl($val['url']);
+            $stream->setContentType($val['mime']);
+            $stream->setSize($size);
+            $stream->setFileExtension($videotype['extension']);
+            $stream->setFilename($info['video']['title'].$videotype['extension']);
+            $stream->setFormat($videotype['name']);
+            $stream->setQuality($val['quality']);
+
+            $data->append($stream);
+        }
+        return $data;
     }
 }

@@ -50,9 +50,9 @@ interface ClientInterface
 {
     public function __construct(Options $options);
 
-    public function saveFile($url, $local);
+    public function saveFile(string $url, $local);
 
-    public function getContent($url);
+    public function getContent(string $url, array $options = []);
 
-    public function getHeaderContentLength($url);
+    public function getHeaderContentLength(string $url);
 }
