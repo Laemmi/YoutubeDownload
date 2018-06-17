@@ -57,10 +57,11 @@ class Service
      *
      * @param $value
      *
+     * @param ServiceOptionsInterface | null $service_options
      * @return ServiceInterface
-     * @throws ServiceException
+     * @throws Exception
      */
-    public static function factory($value)
+    public static function factory($value, ServiceOptionsInterface $service_options = null) : ServiceInterface
     {
         $urldata = parse_url($value);
 
@@ -73,12 +74,12 @@ class Service
         switch ($host) {
             case 'www.youtube.com':
             case 'youtube.com':
-                $service = new Youtube(Client::factory($options));
+                $service = new Youtube(Client::factory($options), $service_options);
                 $service->setId($value);
                 return $service;
             case 'www.vimeo.com':
             case 'vimeo.com':
-                $service = new Vimeo(Client::factory($options));
+                $service = new Vimeo(Client::factory($options), $service_options);
                 $service->setId($value);
                 return $service;
         }
