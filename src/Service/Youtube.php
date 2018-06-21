@@ -31,6 +31,7 @@ namespace Laemmi\YoutubeDownload\Service;
 use Laemmi\YoutubeDownload\Data;
 use Laemmi\YoutubeDownload\ServiceInterface;
 use Laemmi\YoutubeDownload\Http\Client\ClientInterface;
+use Laemmi\YoutubeDownload\ServiceOptionsInterface;
 
 class Youtube implements ServiceInterface
 {
@@ -41,7 +42,7 @@ class Youtube implements ServiceInterface
 
     private $id = '';
 
-    public function __construct(ClientInterface $HttpClient)
+    public function __construct(ClientInterface $HttpClient, ServiceOptionsInterface $service_options)
     {
         $this->HttpClient = $HttpClient;
     }

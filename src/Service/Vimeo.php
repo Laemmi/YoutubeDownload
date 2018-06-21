@@ -31,21 +31,53 @@ namespace Laemmi\YoutubeDownload\Service;
 use Laemmi\YoutubeDownload\Data;
 use Laemmi\YoutubeDownload\ServiceInterface;
 use Laemmi\YoutubeDownload\Http\Client\ClientInterface;
+use Laemmi\YoutubeDownload\ServiceOptionsInterface;
+
 
 class Vimeo implements ServiceInterface
 {
     const URL_PLAYER = 'https://player.vimeo.com/video/%s';
     const URL_VIDEO  = 'https://vimeo.com/%s';
+    const URL_LOGIN  = 'https://vimeo.com/log_in';
 
+    /**
+     * @var ClientInterface|null
+     */
     private $HttpClient = null;
 
+    /**
+     * @var string
+     */
     private $id = '';
 
-    public function __construct(ClientInterface $HttpClient)
+    /**
+     * @var array
+     */
+    private $httpoptions = [];
+
+    /**
+     * @var ServiceOptionsInterface|null
+     */
+    private $ServiceOptions = null;
+
+    /**
+     * Vimeo constructor.
+     *
+     * @param ClientInterface $HttpClient
+     * @param ServiceOptionsInterface $options
+     */
+    public function __construct(ClientInterface $HttpClient, ServiceOptionsInterface $options)
     {
-        $this->HttpClient = $HttpClient;
+        $this->HttpClient     = $HttpClient;
+        $this->ServiceOptions = $options;
     }
 
+    /**
+     * Set id
+     *
+     * @param $value
+     * @throws VimeoException
+     */
     public function setId($value)
     {
         $urldata = parse_url($value);
@@ -58,10 +90,21 @@ class Vimeo implements ServiceInterface
         $this->id = $info['filename'];
     }
 
+    /**
+     * Get data
+     *
+     * @return Data
+     * @throws VimeoException
+     */
     public function getData() : Data
     {
+        if ($this->ServiceOptions->doAuthenticate()) {
+            $authenticatecredentials = $this->ServiceOptions->getAuthenticateCredentials();
+            $this->authenticate($authenticatecredentials['email'], $authenticatecredentials['password']);
+        }
+
         // Find video.clip_page_config to get config_url
-        $content = $this->HttpClient->getContent(sprintf(self::URL_VIDEO, $this->id));
+        $content = $this->HttpClient->getContent(sprintf(self::URL_VIDEO, $this->id), $this->httpoptions);
         if (preg_match('~vimeo\.clip_page_config = (\{.*?\});~m', $content, $match)) {
             $info = json_decode($match[1], true);
             $content = $this->HttpClient->getContent($info['player']['config_url']);
@@ -70,7 +113,7 @@ class Vimeo implements ServiceInterface
         }
 
         // Alternative find config data on player page
-        $content = $this->HttpClient->getContent(sprintf(self::URL_PLAYER, $this->id));
+        $content = $this->HttpClient->getContent(sprintf(self::URL_PLAYER, $this->id), $this->httpoptions);
         if (preg_match('~var t=(\{.*?\});~m', $content, $match)) {
             $info = json_decode($match[1], true);
             return $this->addDateFromConfigUrl($info);
@@ -81,7 +124,7 @@ class Vimeo implements ServiceInterface
             CURLOPT_HTTPHEADER => [
                 'X-Requested-With: XMLHttpRequest'
             ]
-        ]);
+        ] + $this->httpoptions);
         $info = json_decode($content, true);
         if (isset($info['files'])) {
             $data = new Data();
@@ -107,6 +150,12 @@ class Vimeo implements ServiceInterface
         throw new VimeoException('no content found', VimeoException::NO_CONTENT_FOUND);
     }
 
+    /**
+     * Get videotype
+     *
+     * @param $value
+     * @return array
+     */
     private function getVideotype($value) : array
     {
         $type = array(
@@ -131,6 +180,12 @@ class Vimeo implements ServiceInterface
         return isset($type[$value]) ? $type[$value] : [];
     }
 
+    /**
+     * Append data from give array
+     *
+     * @param array $info
+     * @return Data
+     */
     private function addDateFromConfigUrl(array $info) : Data
     {
         $data = new Data();
@@ -152,5 +207,64 @@ class Vimeo implements ServiceInterface
             $data->append($stream);
         }
         return $data;
+    }
+
+    /**
+     * Authenticate to vimeo
+     *
+     * @param string $email
+     * @param string $password
+     * @return bool
+     */
+    private function authenticate(string $email, string $password) : bool
+    {
+        $response = $this->HttpClient->getContent(self::URL_LOGIN);
+        if (! preg_match("/.xsrft.:\"(.*)\",/i", $response, $match)) {
+            return false;
+        }
+
+        $token = $match[1];
+
+        if (! preg_match("/[\"\']vuid[\"\']\:[\"\'](.*?)[\"\']/i", $response, $match)) {
+            return false;
+        }
+
+        $vuid = $match[1];
+
+        $cookie     = 'vuid=' . $vuid;
+        $cookiefile = '/tmp/LaemmiYouTubeDownloadVimeoCookie.txt';
+        @unlink($cookiefile);
+
+        $headers = array(
+            "Accept: application/json",
+            "Accept-Language: en-US,en;q=0.5",
+            "X-Requested-With: XMLHttpRequest",
+            "X-Request: JSON",
+            "Content-Type: application/x-www-form-urlencoded; charset=utf-8",
+        );
+
+        $postfields = [
+            'email'    => $email,
+            'password' => $password,
+            'token'    => $token,
+            'action'   => 'login',
+            'service'  => 'vimeo',
+        ];
+
+        $this->httpoptions = [
+            CURLOPT_COOKIESESSION => true,
+            CURLOPT_COOKIEJAR     => $cookiefile,
+            CURLOPT_COOKIEFILE    => $cookiefile,
+            CURLOPT_COOKIE        => $cookie,
+        ];
+
+        $this->HttpClient->getContent(self::URL_LOGIN, [
+            CURLOPT_HTTPHEADER    => $headers,
+            CURLOPT_TIMEOUT       => 3600,
+            CURLOPT_POST          => true,
+            CURLOPT_POSTFIELDS    => http_build_query($postfields),
+        ] + $this->httpoptions);
+
+        return true;
     }
 }
