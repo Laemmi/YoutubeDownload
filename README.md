@@ -27,7 +27,7 @@ or use repository
     
 # Usage
 
-    $service = Laemmi\YoutubeDownload\Service::factory(https://www.youtube.com/watch?v=Rd7YsqomnGI);
+    $service = Laemmi\YoutubeDownload\Service::factory('https://www.youtube.com/watch?v=Rd7YsqomnGI');
     $data = $service->getData();
     
 You get different URL for mediatype and quality.
