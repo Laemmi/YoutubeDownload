@@ -23,39 +23,30 @@
  * @copyright  ©2018 laemmi
  * @license    http://www.opensource.org/licenses/mit-license.php MIT-License
  * @version    1.0.0
- * @since      17.06.18
+ * @since      21.06.18
  */
 
 namespace Laemmi\YoutubeDownload\Service;
 
 use Laemmi\YoutubeDownload\ServiceOptionsInterface;
 
-class VimeoOptions implements ServiceOptionsInterface
+class DefaultOptions implements ServiceOptionsInterface
 {
-    private $authenticatecredentials = [
-        'email'    => '',
-        'password' => ''
-    ];
-
-    private $authenticate = false;
-
     public function setAuthenticate(bool $value)
     {
-        $this->authenticate = $value;
     }
 
     public function doAuthenticate() : bool
     {
-        return $this->authenticate;
+        return false;
     }
 
     public function setAuthenticateCredentials(array $data)
     {
-        $this->authenticatecredentials = $data + $this->authenticatecredentials;
     }
 
     public function getAuthenticateCredentials() : array
     {
-        return $this->authenticatecredentials;
+        return [];
     }
 }

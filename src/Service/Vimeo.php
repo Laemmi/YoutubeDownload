@@ -55,6 +55,9 @@ class Vimeo implements ServiceInterface
      */
     private $httpoptions = [];
 
+    /**
+     * @var ServiceOptionsInterface|null
+     */
     private $ServiceOptions = null;
 
     /**
@@ -213,7 +216,7 @@ class Vimeo implements ServiceInterface
      * @param string $password
      * @return bool
      */
-    private function authenticate(string $email, string $password)
+    private function authenticate(string $email, string $password) : bool
     {
         $response = $this->HttpClient->getContent(self::URL_LOGIN);
         if (! preg_match("/.xsrft.:\"(.*)\",/i", $response, $match)) {
@@ -255,11 +258,13 @@ class Vimeo implements ServiceInterface
             CURLOPT_COOKIE        => $cookie,
         ];
 
-        $response = $this->HttpClient->getContent(self::URL_LOGIN, [
+        $this->HttpClient->getContent(self::URL_LOGIN, [
             CURLOPT_HTTPHEADER    => $headers,
             CURLOPT_TIMEOUT       => 3600,
             CURLOPT_POST          => true,
             CURLOPT_POSTFIELDS    => http_build_query($postfields),
         ] + $this->httpoptions);
+
+        return true;
     }
 }

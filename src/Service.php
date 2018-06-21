@@ -34,6 +34,7 @@
 namespace Laemmi\YoutubeDownload;
 
 use Laemmi\YoutubeDownload\Http\Client;
+use Laemmi\YoutubeDownload\Service\DefaultOptions;
 use Laemmi\YoutubeDownload\Service\Vimeo;
 use Laemmi\YoutubeDownload\Service\Youtube;
 
@@ -71,19 +72,26 @@ class Service
         $options = new Client\Options();
         $options->referer = $scheme . '://' . $host;
 
+        $client = Client::factory($options);
+
+        if (! $service_options  instanceof ServiceOptionsInterface) {
+            $service_options = new DefaultOptions();
+        }
+
         switch ($host) {
             case 'www.youtube.com':
             case 'youtube.com':
-                $service = new Youtube(Client::factory($options), $service_options);
-                $service->setId($value);
-                return $service;
+                $service = new Youtube($client, $service_options);
+                break;
             case 'www.vimeo.com':
             case 'vimeo.com':
-                $service = new Vimeo(Client::factory($options), $service_options);
-                $service->setId($value);
-                return $service;
+                $service = new Vimeo($client, $service_options);
+                break;
+            default:
+                throw new Exception('Service not found', Exception::SERVICE_NOT_FOUND);
         }
 
-        throw new Exception('Service not found', Exception::SERVICE_NOT_FOUND);
+        $service->setId($value);
+        return $service;
     }
 }
