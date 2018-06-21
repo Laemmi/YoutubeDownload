@@ -23,8 +23,6 @@
 
 <div class="container" id="content">
     <div id="ContainerBuild">
-        <p>Video Url eingeben!</p>
-
         <p>
             Beispiel:<br>
             <code>https://www.youtube.com/watch?v=Rd7YsqomnGI</code><br>
@@ -32,13 +30,22 @@
         </p>
 
         <form id="FormBuild" action="info.php" method="post">
-            <div class="input-group input-group-lg">
-                <span class="input-group-addon"><span class="glyphicon glyphicon-cloud-download"></span></span>
-                <input type="text" name="url" class="form-control" placeholder="Video URL">
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="submit" name="submit">Los gehts!</button>
-                </span>
+            <div class="form-group">
+                <div class="input-group input-group-lg">
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-cloud-download"></span></span>
+                    <input type="text" name="url" class="form-control" placeholder="Video URL eingeben">
+                </div>
             </div>
+            <div class="form-group">
+                <label for="user">User*</label>
+                <input id="user" type="text" name="user" class="form-control">
+            </div>
+            <div class="form-group">
+                <label id="password" for="password">Password*</label>
+                <input type="password" name="password" class="form-control">
+                <span class="help-block">* optional for private Videos (only Vimeo)</span>
+            </div>
+            <button class="btn btn-success btn-lg btn-block" type="submit" name="submit">Los gehts!</button>
         </form>
     </div>
 
