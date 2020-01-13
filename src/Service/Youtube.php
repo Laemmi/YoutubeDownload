@@ -87,11 +87,9 @@ class Youtube implements ServiceInterface
         $data->setTitle($info['meta']['title']);
         $data->setPreviewUrl(sprintf(self::YT_URL_IMG_PREVIEW, $id . '/default.jpg'));
 
-        $sort = [];
-
         foreach ($info['stream'] as $key => $val) {
-            $videotype      = $this->getVideotype($val);
-            $size           = $this->HttpClient->getHeaderContentLength($val['url']);
+            $videotype = $this->getVideotype($val);
+            $size      = $this->HttpClient->getHeaderContentLength($val['url']);
 
             $stream = new Data\Stream();
             $stream->setUrl($val['url']);
@@ -103,8 +101,6 @@ class Youtube implements ServiceInterface
             $stream->setQuality($videotype['quality']);
 
             $data->append($stream);
-
-            $sort[] = $videotype['sort'];
         }
 
         return $data;
@@ -117,7 +113,7 @@ class Youtube implements ServiceInterface
      * @throws YoutubeException
      * @return array
      */
-    private function getVideoInfo($id)
+    private function getVideoInfo($id): array
     {
         $data = array('meta' => array(), 'stream' => array());
 
@@ -128,6 +124,10 @@ class Youtube implements ServiceInterface
         }
 
         $player_response = json_decode($info['player_response'], true);
+
+        if (isset($player_response['playabilityStatus']) && 'OK' !== $player_response['playabilityStatus']['status']) {
+            throw new YoutubeException($player_response['playabilityStatus']['reason'], YoutubeException::FAILED_STATUS_REASON);
+        }
 
         $data['meta']['title'] = $player_response['videoDetails']['title'];
 

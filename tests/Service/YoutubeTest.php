@@ -66,6 +66,7 @@ class YoutubeTest extends PHPUnit_Framework_TestCase
     public function providerDefaultValues(): array
     {
         return [
+            ['https://www.youtube.com/watch?v=GX2m2eWbwOw', ['content_type' => 'video/mp4', 'size' => '12913877', 'filename' => 'THE TOTEN CRACKHUREN IM KOFFERRAUM - Ich und mein Pony "Offizielles Video".mp4']],
             ['https://www.youtube.com/watch?v=rLuo_XqkFmY', ['content_type' => 'video/mp4', 'size' => '0', 'filename' => 'Erste Hilfe: Wiederbelebung.mp4']],
             ['https://www.youtube.com/watch?v=T6WDCCvwXYI', ['content_type' => 'video/mp4', 'size' => '4785236', 'filename' => 'DAS KRONTHALER****S.mp4']],
         ];
