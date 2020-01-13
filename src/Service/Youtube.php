@@ -35,8 +35,8 @@ use Laemmi\YoutubeDownload\ServiceOptionsInterface;
 
 class Youtube implements ServiceInterface
 {
-    const YT_URL_INFO           = 'https://www.youtube.com/get_video_info?video_id=';  // &el=embedded&ps=default&eurl=&gl=US&hl=en
-    const YT_URL_IMG_PREVIEW    = 'https://img.youtube.com/vi/'; // http://i1.ytimg.com/vi/
+    const YT_URL_INFO           = 'https://www.youtube.com/get_video_info?video_id=%s';
+    const YT_URL_IMG_PREVIEW    = 'https://img.youtube.com/vi/%s';
 
     private $HttpClient = null;
 
@@ -74,8 +74,10 @@ class Youtube implements ServiceInterface
      * Get data
      *
      * @return Data
+     * @throws YoutubeException
+     * @throws \Laemmi\YoutubeDownload\Exception
      */
-    public function getData()
+    public function getData(): Data
     {
         $id = $this->id;
 
@@ -83,20 +85,17 @@ class Youtube implements ServiceInterface
 
         $data = new Data();
         $data->setTitle($info['meta']['title']);
-        $data->setPreviewUrl(self::YT_URL_IMG_PREVIEW.$id.'/default.jpg');
+        $data->setPreviewUrl(sprintf(self::YT_URL_IMG_PREVIEW, $id . '/default.jpg'));
 
         $sort = [];
 
-        foreach($info['stream'] as $key => $val)
-        {
-            $x = explode(';', $val['type']);
-            $content_type   = $x[0];
+        foreach ($info['stream'] as $key => $val) {
             $videotype      = $this->getVideotype($val);
             $size           = $this->HttpClient->getHeaderContentLength($val['url']);
 
             $stream = new Data\Stream();
             $stream->setUrl($val['url']);
-            $stream->setContentType($content_type);
+            $stream->setContentType($val['type']);
             $stream->setSize($size);
             $stream->setFileExtension($videotype['type']['extension']);
             $stream->setFilename($info['meta']['title'].$videotype['type']['extension']);
@@ -106,27 +105,7 @@ class Youtube implements ServiceInterface
             $data->append($stream);
 
             $sort[] = $videotype['sort'];
-
-//            $data['stream'][] = array(
-//                'url'          => $val['url'],
-//                'content_type' => $content_type,
-//                'size'         => $size,
-//                'size_format'  => $this->formatBytes($size),
-//                'fileextension'=> $videotype['type']['extension'],
-//                'filename'     => $info['meta']['title'].$videotype['type']['extension'],
-//                'typename'     => $videotype['type']['name'],
-//                'typesort'     => $videotype['sort'],
-//
-//                'url_download' => $val['url'].'&title='.$info['meta']['title'],
-//                'quality'      => $videotype['quality'],
-//            );
         }
-
-//        foreach ($data['stream'] as $key => $row)
-//        {
-//            $typesort[$key] = $row['typesort'];
-//        }
-//        array_multisort($typesort, SORT_ASC, $data['stream']);
 
         return $data;
     }
@@ -142,19 +121,27 @@ class Youtube implements ServiceInterface
     {
         $data = array('meta' => array(), 'stream' => array());
 
-        parse_str($this->HttpClient->getContent(self::YT_URL_INFO.$id), $info);
+        parse_str($this->HttpClient->getContent(sprintf(self::YT_URL_INFO, $id)), $info);
 
-        if(isset($info['status']) && 'fail' === $info['status']) {
+        if (isset($info['status']) && 'fail' === $info['status']) {
             throw new YoutubeException($info['reason'], YoutubeException::FAILED_STATUS_REASON);
         }
 
-        $data['meta']['title'] = $info['title'];
+        $player_response = json_decode($info['player_response'], true);
 
-        $streams = explode(',', $info['url_encoded_fmt_stream_map']);
-        foreach($streams as $stream)
-        {
-            parse_str($stream, $real_stream);
-            $data['stream'][] = $real_stream;
+        $data['meta']['title'] = $player_response['videoDetails']['title'];
+
+        foreach ($player_response['streamingData']['formats'] as $stream) {
+            if (! isset($stream['url'])) {
+                parse_str($stream['cipher'], $cipher);
+                $stream['url'] = $cipher['url'];
+            }
+            $data['stream'][] = [
+                'url'     => $stream['url'],
+                'type'    => strstr($stream['mimeType'], ';', true),
+                'quality' => $stream['quality'],
+                'itag'    => $stream['itag'],
+            ];
         }
 
         return $data;
@@ -188,8 +175,6 @@ class Youtube implements ServiceInterface
         );
 
         $map = array(
-
-
             37 => array(
                 'type'      => $type['video/mp4'],
                 'quality'   => $value['quality'].' (1080p)',
@@ -266,7 +251,7 @@ class Youtube implements ServiceInterface
             ),
         );
 
-        if(isset($map[$value['itag']])) {
+        if (isset($map[$value['itag']])) {
             return $map[$value['itag']];
         }
         $x = explode(';', $value['type']);
