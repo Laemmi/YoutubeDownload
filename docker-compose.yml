@@ -1,0 +1,11 @@
+version: '3.5'
+
+services:
+
+  web:
+    image: php:7.4-apache
+    ports:
+      - 8080:80
+    volumes:
+      - .:/var/www/html:cached
+      - ./.docker/apache2/logs:/var/log/apache2:cached
